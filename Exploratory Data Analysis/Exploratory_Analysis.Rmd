@@ -1,0 +1,50 @@
+---
+title: "Exploratory Data Analysis of Omaha BRFSS Survey"
+author: "Tim Mastny"
+date: "November 2, 2017"
+output: 
+  html_document:
+    keep_md: yes
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, warning=FALSE, message=FALSE, 
+                      results='show', cache=TRUE, autodep=TRUE)
+```
+
+## Looking at the data.
+
+```{r}
+library(tidyverse)
+d <- read_csv("~/git_tests/BRFSS_NE/Behavioral_Risk_Factors__Selected_Metropolitan_Area_Risk_Trends__SMART__MMSA_Prevalence_Data__2011_to_Present_.csv")
+
+d %>% as.tibble()
+```
+
+How many years and where?
+
+```{r}
+unique(d$Year)
+unique(d$Locationabbr)
+unique(d$Locationdesc)
+```
+
+Let's take a look at some of the data:
+
+```{r}
+d %>%
+  select(Class, Question, Response, Sample_Size)
+unique(d$Class)
+str(unique(d$Question))
+```
+
+We are dealing with a Survey of 72 questions. I will need to look at some supplementary material to make sense of that. 
+
+```{r}
+d %>%
+  select(Response, Sample_Size, Break_Out)
+```
+
+
+
+
