@@ -21,6 +21,9 @@ Link is broken at the moment, but should be able to find the paper easy enough.
 
 http://andrewgelman.com/2014/05/28/bayesian-nonparametric-weighted-sampling-inference/#comments
 
+Sampling weights and `brms`:
+
+https://groups.google.com/forum/#!topic/brms-users/3y3Dlby57Zg
 
 ## Packages and future tools to look into
 
