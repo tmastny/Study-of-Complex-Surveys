@@ -67,6 +67,14 @@ unique(d$Locationdesc)
 ## [1] "Omaha-Council Bluffs, NE-IA Metropolitan Statistical Area"
 ```
 
+```r
+unique(d$GeoLocation)
+```
+
+```
+## [1] "(41.2904514, -95.9999621)"
+```
+
 Let's take a look at some of the data:
 
 
@@ -141,6 +149,7 @@ d %>%
 ## 10                   Yes        2448   Overall
 ## # ... with 544 more rows
 ```
+
 
 
 

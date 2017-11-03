@@ -27,6 +27,7 @@ How many years and where?
 unique(d$Year)
 unique(d$Locationabbr)
 unique(d$Locationdesc)
+unique(d$GeoLocation)
 ```
 
 Let's take a look at some of the data:
@@ -44,6 +45,7 @@ We are dealing with a Survey of 72 questions. I will need to look at some supple
 d %>%
   select(Response, Sample_Size, Break_Out)
 ```
+
 
 
 
