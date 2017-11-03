@@ -29,6 +29,10 @@ Article on graphical weights:
 
 http://www.scielo.org.co/pdf/rce/v37n2/v37n2a03.pdf
 
+And a recent paper:
+
+https://arxiv.org/abs/1710.00959
+
 
 ## Packages and future tools to look into
 
