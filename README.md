@@ -1,4 +1,4 @@
-# BRFSS_NE
+# Study of Complex Surveys
 
 This repo is my foray into complex survey analysis. Right now it is just a way to keep track of some ideas.
 
