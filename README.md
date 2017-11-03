@@ -25,6 +25,11 @@ Sampling weights and `brms`:
 
 https://groups.google.com/forum/#!topic/brms-users/3y3Dlby57Zg
 
+Article on graphical weights: 
+
+http://www.scielo.org.co/pdf/rce/v37n2/v37n2a03.pdf
+
+
 ## Packages and future tools to look into
 
 There is `srvyr`
