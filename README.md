@@ -15,6 +15,13 @@ https://www.google.com/search?ei=mpr7WeewEMXgjwTBu5z4BQ&q=GIS+maps+in+r&oq=GIS+m
 
 Moreover, I definitely need to look into the `lodown` package for downloading complex survey data.
 
+## Bayesian/Gelman references
+
+Link is broken at the moment, but should be able to find the paper easy enough.
+
+http://andrewgelman.com/2014/05/28/bayesian-nonparametric-weighted-sampling-inference/#comments
+
+
 ## Packages and future tools to look into
 
 There is `srvyr`
