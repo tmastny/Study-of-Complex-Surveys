@@ -15,6 +15,10 @@ https://www.google.com/search?ei=mpr7WeewEMXgjwTBu5z4BQ&q=GIS+maps+in+r&oq=GIS+m
 
 Moreover, I definitely need to look into the `lodown` package for downloading complex survey data.
 
+Another Example:
+https://hagutierrezro.blogspot.com/2017/01/gelman-mrp-in-r-what-is-this-all-about.html
+
+
 ## Bayesian/Gelman references
 
 Link is broken at the moment, but should be able to find the paper easy enough.

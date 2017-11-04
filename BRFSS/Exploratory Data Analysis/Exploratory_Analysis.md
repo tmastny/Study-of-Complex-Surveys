@@ -9,7 +9,7 @@ November 2, 2017
 
 ```r
 library(tidyverse)
-d <- read_csv("~/git_repos/BRFSS_NE/Behavioral_Risk_Factors__Selected_Metropolitan_Area_Risk_Trends__SMART__MMSA_Prevalence_Data__2011_to_Present_.csv")
+d <- read_csv("~/git_repos/Study-of-Complex-Surveys/BRFSS/Behavioral_Risk_Factors__Selected_Metropolitan_Area_Risk_Trends__SMART__MMSA_Prevalence_Data__2011_to_Present_.csv")
 
 d %>% as.tibble()
 ```
