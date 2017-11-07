@@ -55,3 +55,26 @@ I should consider National Health Interview Survey. In particular, it seems to a
 
 See here for a discussion of survey analysis in Stan: https://groups.google.com/forum/#!topic/stan-users/nSgDmGt0cCo
 
+## Mapping Survey data:
+
+https://stackoverflow.com/questions/23318243/how-to-make-beautiful-borderless-geographic-thematic-heatmaps-with-weighted-sur
+
+## Great article on Overestimate in Survey samples
+
+http://www.stat.columbia.edu/~gelman/surveys.course/Hemenway1997.pdf
+
+From http://andrewgelman.com/wp-content/uploads/2015/12/surveys_course_outline.pdf
+
+# Forecasting elections with non-representative polls
+
+http://www.stat.columbia.edu/~gelman/research/published/forecasting-with-nonrepresentative-polls.pdf
+
+# Gaussian Processes
+
+This probably shouldn't go in this repo, but oh well:
+
+http://katbailey.github.io/post/gaussian-processes-for-dummies/
+
+
+
+
