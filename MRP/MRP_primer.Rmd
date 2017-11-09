@@ -1,0 +1,140 @@
+---
+title: "MRP Primer"
+author: "Tim"
+date: "11/9/2017"
+output: 
+  html_document:
+    keep_md: yes
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, warning=FALSE, message=FALSE, 
+                      results='show', cache=TRUE, autodep=TRUE)
+```
+## Data and references
+
+I'll be working through Kastellec et al's MRP primer. The paper and datasets are hosted [at his website](http://www.princeton.edu/~jkastell/mrp_primer.html). 
+
+I have a few goals in this exercise:
+
+1. Verify Kastellec's findings.
+
+2. Attempt a full Bayesian modeling uses `Stan` and `brms`. 
+
+3. Compare
+
+    a. multilevel vs. fixed effects models
+
+    b. results before and after poststratification
+  
+
+## Reproduce and Verify
+
+Our goal is to estimate public opinion on gay marriage using this poll:
+
+```{r}
+library(arm)
+library(tidyverse)
+marriage.data <- foreign::read.dta('gay_marriage_megapoll.dta')
+marriage.data %>% as.tibble()
+```
+
+## Disaggregration 
+
+The simplest way to gauge politic opinion is to disaggregrate the data. Break down the national survey into states and calculate the percentage saying `yes_of_all`. That calculation is very simple with `dplyr`:
+
+```{r}
+marriage.opinion <- marriage.data %>%
+  group_by(statename) %>%
+  summarise(support = mean(yes_of_all))
+marriage.opinion
+```
+
+Let's map it. First we in setup our mapping tools.
+
+```{r}
+library(maps)
+library(mapdata)
+library(ggmap)
+states <- map_data("state")
+
+ditch_the_axes <- theme(
+  axis.text = element_blank(),
+  axis.line = element_blank(),
+  axis.ticks = element_blank(),
+  panel.border = element_blank(),
+  panel.grid = element_blank(),
+  axis.title = element_blank()
+  )
+```
+
+Next, we need to combine our state level data with the national map `states`.
+
+```{r}
+state_opinion <- states %>%
+  inner_join(marriage.opinion, by=c('region' = 'statename')) %>% 
+  as.tibble()
+
+ggplot(data=state_opinion, aes(x = long, y = lat, group = group)) +
+  geom_polygon(aes(fill = support), color = "white") +
+  geom_polygon(color='black', fill=NA) + 
+  coord_fixed(1.3) + 
+  theme_bw() +
+  ditch_the_axes + 
+  scale_fill_gradient2(low = 'red', mid = 'white', high = 'blue',
+                       midpoint = 0.5)
+```
+
+White indicates majority support, with colors trending towards blue indicate increased support. Red colors are states below majority support. 
+
+## Combining Data
+
+Likewise, we may want to use other state level predictors from other sources:
+
+```{r}
+Statelevel <- foreign::read.dta("state_level_update.dta",convert.underscore = TRUE)
+Statelevel <- Statelevel[order(Statelevel$sstate.initnum),]
+Statelevel %>% as.tibble()
+```
+
+Finally, we need to load in the US census for poststratification:
+
+```{r}
+Census <- foreign::read.dta("poststratification 2000.dta",convert.underscore = TRUE)
+Census <- Census[order(Census$cstate),]
+Census$cstate.initnum <-  match(Census$cstate, Statelevel$sstate)
+Census %>% as.tibble()
+```
+
+An important warning with poststratification techniques is that you need demographic information for every intersection of your model predictors. For example, if your model predicts opinion based on gender, race, age, and education you will need to know the number of African American females aged 18 to 29 years old who are college graduates. Do we have that information?
+
+```{r}
+Census %>%
+  group_by(crace.WBH, cage.cat, cedu.cat, cfemale) %>%
+  summarise(count = sum(.freq)) %>%
+  filter(crace.WBH==2, cfemale==1, cage.cat==1)
+```
+
+Next, we need to create a list of indicator variables to poststratify the survey:
+
+```{r}
+# # from 1 for white males to 6 for hispanic females
+# marriage.data$race.female <- (marriage.data$female *3) + marriage.data$race.wbh
+# 
+# # from 1 for 18-29 with low edu to 16 for 65+ with high edu
+# marriage.data$age.edu.cat <- 4 * (marriage.data$age.cat -1) + marriage.data$edu.cat
+# 
+# # proportion of evangelicals in respondent's state
+# marriage.data$p.evang.full <- Statelevel$p.evang[marriage.data$state.initnum]
+# 
+# marriage.data$p.mormon.full <-Statelevel$p.mormon[marriage.data$state.initnum]# proportion of mormon's in respondent's state
+# marriage.data$p.relig.full <- marriage.data$p.evang.full + marriage.data$p.mormon.full# combined evangelical + mormom proportions
+# marriage.data$p.kerry.full <- Statelevel$kerry.04[marriage.data$state.initnum]# kerry's % of 2-party vote in respondent's state in 2004
+```
+
+
+
+
+
+
+
