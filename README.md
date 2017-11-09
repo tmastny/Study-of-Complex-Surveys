@@ -59,7 +59,7 @@ See here for a discussion of survey analysis in Stan: https://groups.google.com/
 
 https://stackoverflow.com/questions/23318243/how-to-make-beautiful-borderless-geographic-thematic-heatmaps-with-weighted-sur
 
-## Great article on Overestimate in Survey samples
+## Great article on Overestimation in Survey samples
 
 http://www.stat.columbia.edu/~gelman/surveys.course/Hemenway1997.pdf
 
@@ -75,6 +75,19 @@ This probably shouldn't go in this repo, but oh well:
 
 http://katbailey.github.io/post/gaussian-processes-for-dummies/
 
+# Mailing List about Bayesian Surveys
 
+https://groups.google.com/forum/#!topic/stan-users/wZUb1KclmB4
 
+In particular, there are two examples of survey analyses using Stan.
+
+And here:
+
+https://groups.google.com/forum/#!topic/stan-users/v4CoBWUehwU
+
+They say: Recommend running in Stan and then post-stratifying. But doesn't that still use the weights?
+
+Why isn't there a distribution that knows the total population as a parameter? Or rather, what if the inference into a population mean is a decision problem?
+
+I need to do more reason on population weights and how they are included in actual surveys.
 
