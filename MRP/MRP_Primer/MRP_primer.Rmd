@@ -190,12 +190,25 @@ tibble(Intercept = ranef(individual.model)$race.female$`(Intercept)`,
 ```
 
 The standard error on the estimates is fairly large. However, some estimates have a confidence interval just above (or below) zero. Looking at the statistics, men support gay marriage less on average than women in each strata. Moreover, whites seem to support gay marriage less than any other race, with the notable except of Hispanic men. 
+Lastly, we want to set create an array of random effects for each state. `ranef(individual.model)` should already have them, but state responses might be zero.
+
+```{r}
+marriage.opinion %>%
+  summarise(count = n())
+```
+
+We have 50 'states,' but the data set contains the district of columbia. 
+
+```{r}
+unique(states$region)
+```
 
 
 
 
 
 ## Poststratifying
+
 
 
 

@@ -335,12 +335,54 @@ tibble(Intercept = ranef(individual.model)$race.female$`(Intercept)`,
 ```
 
 The standard error on the estimates is fairly large. However, some estimates have a confidence interval just above (or below) zero. Looking at the statistics, men support gay marriage less on average than women in each strata. Moreover, whites seem to support gay marriage less than any other race, with the notable except of Hispanic men. 
+Lastly, we want to set create an array of random effects for each state. `ranef(individual.model)` should already have them, but state responses might be zero.
+
+
+```r
+marriage.opinion %>%
+  summarise(count = n())
+```
+
+```
+## # A tibble: 1 x 1
+##   count
+##   <int>
+## 1    50
+```
+
+We have 50 'states,' but the data set contains the district of columbia. 
+
+
+```r
+unique(states$region)
+```
+
+```
+##  [1] "alabama"              "arizona"              "arkansas"            
+##  [4] "california"           "colorado"             "connecticut"         
+##  [7] "delaware"             "district of columbia" "florida"             
+## [10] "georgia"              "idaho"                "illinois"            
+## [13] "indiana"              "iowa"                 "kansas"              
+## [16] "kentucky"             "louisiana"            "maine"               
+## [19] "maryland"             "massachusetts"        "michigan"            
+## [22] "minnesota"            "mississippi"          "missouri"            
+## [25] "montana"              "nebraska"             "nevada"              
+## [28] "new hampshire"        "new jersey"           "new mexico"          
+## [31] "new york"             "north carolina"       "north dakota"        
+## [34] "ohio"                 "oklahoma"             "oregon"              
+## [37] "pennsylvania"         "rhode island"         "south carolina"      
+## [40] "south dakota"         "tennessee"            "texas"               
+## [43] "utah"                 "vermont"              "virginia"            
+## [46] "washington"           "west virginia"        "wisconsin"           
+## [49] "wyoming"
+```
 
 
 
 
 
 ## Poststratifying
+
 
 
 
