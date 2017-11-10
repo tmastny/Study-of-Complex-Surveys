@@ -326,12 +326,12 @@ tibble(Intercept = ranef(individual.model)$race.female$`(Intercept)`,
 ## # A tibble: 6 x 3
 ##     Intercept        se            race
 ##         <dbl>     <dbl>           <chr>
-## 1 -0.21042113 0.1083258      White male
-## 2 -0.08701421 0.1454965    White female
-## 3  0.04904728 0.1472961      Black male
-## 4  0.23019439 0.1080291    Black female
-## 5 -0.22601647 0.1362808   Hispanic male
-## 6  0.24575666 0.1485544 Hispanic female
+## 1 -0.21041966 0.1083277      White male
+## 2 -0.08701381 0.1454986    White female
+## 3  0.04904925 0.1472982      Black male
+## 4  0.23019645 0.1080310    Black female
+## 5 -0.22601721 0.1362828   Hispanic male
+## 6  0.24576221 0.1485565 Hispanic female
 ```
 
 The standard error on the estimates is fairly large. However, some estimates have a confidence interval just above (or below) zero. Looking at the statistics, men support gay marriage less on average than women in each strata. Moreover, whites seem to support gay marriage less than any other race, with the notable except of Hispanic men. 
