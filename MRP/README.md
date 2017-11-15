@@ -9,6 +9,11 @@ https://gist.github.com/AustinRochford/bfc20cb3262169b41b730bd9faf74477
 
 http://www.princeton.edu/~jkastell/MRP_primer/mrp_primer.pdf
 
+## Gelman MRP References
+
+ - BDA Chapter 8, non-representative surveys
+ 
+ - ARM Section 14.1
 
 
 

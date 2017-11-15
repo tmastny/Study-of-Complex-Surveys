@@ -57,7 +57,7 @@ marriage.data %>% as.tibble()
 
 ## Disaggregration 
 
-The simplest way to gauge politic opinion is to disaggregrate the data. Break down the national survey into states and calculate the percentage saying `yes.of.all`. That calculation is very simple with `dplyr`:
+The simplest way to gauge politic opinion is to disintegrate the data. Break down the national survey into states and calculate the percentage saying `yes.of.all`. That calculation is very simple with `dplyr`:
 
 
 ```r
@@ -136,7 +136,44 @@ marriage.opinion %>% na.omit() %>%
 
 ![](MRP_primer_files/figure-html/unnamed-chunk-5-1.png)<!-- -->
 
+### Additional Mapping Techniques
 
+The previous map was fairly simple and uses the basic tools, but there isn't a nice way to show Alaska and Hawaii. He's how to do it with another package `alberusa`:
+
+
+```r
+library(albersusa)
+us <- usa_composite()
+us_map <- fortify(us, region="name")
+
+us_map <- us_map %>%
+  mutate(id = stringr::str_to_lower(id))
+
+m.s <- mean(marriage.opinion$support)
+marriage.opinion[nrow(marriage.opinion) + 1,] <- list("alaska", m.s)
+marriage.opinion[nrow(marriage.opinion) + 1,] <- list("hawaii", m.s)
+
+marriage.opinion <- marriage.opinion %>%
+  semi_join(us_map, by= c("statename" = "id"))
+
+library(ggthemes)
+ggplot() +
+  geom_map(data=us_map, map=us_map,
+           aes(x=long, y=lat, map_id=id),
+           color="#2b2b2b", size=0.1, fill=NA) +
+  geom_map(data=marriage.opinion, map=us_map,
+           aes(fill=support, map_id=statename),
+           color="#2b2b2b", size=0.1) + #change color for borders
+  coord_map("polyconic") + 
+  scale_fill_gradient2(low='red', mid='white', high='blue', midpoint=0.5) + 
+  theme_map() + 
+  theme(legend.position="top", 
+        legend.key.width=unit(3, "lines")) 
+```
+
+![](MRP_primer_files/figure-html/unnamed-chunk-6-1.png)<!-- -->
+
+I think this map looks way better and has a more consistent map building syntax.
 
 ## Combining Data
 
@@ -250,7 +287,7 @@ marriage.data$p.relig.full <- marriage.data$p.evang.full + marriage.data$p.mormo
 marriage.data$p.kerry.full <- Statelevel$kerry.04[marriage.data$state.initnum]
 ```
 
-As an aside, I really dislike this coding scheme as it seems to make the interpretation of the categorical quantities very difficult to understand. I'd like to try an alterative reformulation of the indicators later, or have a function to convert them a la `tidybayes` to easily understand. 
+As an aside, I really dislike this coding scheme as it seems to make the interpretation of the categorical quantities very difficult to understand. I'd like to try an alternative reformulation of the indicators later, or have a function to convert them a la `tidybayes` to easily understand. 
 
 Next, we code the system census in the same way.
 
@@ -310,7 +347,7 @@ display(individual.model)
 
 This model estimates the mean (via offsets using group-level intercepts) for each cross-classification of demographics and states; the exact poststratification we are interested in.  
 
-Analyzing the coefficients, we first see that an individual's religion indicates they would be less inclined to support gay marriage with a certainty. This result is expeted. However, voting for Kerry in the previous elect has an estimated positive effect, although the confidence interval includes zero. This is suprisingly since republicans tend to not support gay marriage and tend to be more religious.
+Analyzing the coefficients, we first see that an individual's religion indicates they would be less inclined to support gay marriage with a certainty. This result is expected. However, voting for Kerry in the previous elect has an estimated positive effect, although the confidence interval includes zero. This is surprisingly since republicans tend to not support gay marriage and tend to be more religious.
 
 Let's take a look at the actual group-level intercepts.
 
@@ -326,81 +363,200 @@ tibble(Intercept = ranef(individual.model)$race.female$`(Intercept)`,
 ## # A tibble: 6 x 3
 ##     Intercept        se            race
 ##         <dbl>     <dbl>           <chr>
-## 1 -0.21041966 0.1083277      White male
-## 2 -0.08701381 0.1454986    White female
-## 3  0.04904925 0.1472982      Black male
-## 4  0.23019645 0.1080310    Black female
-## 5 -0.22601721 0.1362828   Hispanic male
-## 6  0.24576221 0.1485565 Hispanic female
+## 1 -0.21042113 0.1083258      White male
+## 2 -0.08701421 0.1454965    White female
+## 3  0.04904728 0.1472961      Black male
+## 4  0.23019439 0.1080291    Black female
+## 5 -0.22601647 0.1362808   Hispanic male
+## 6  0.24575666 0.1485544 Hispanic female
 ```
 
 The standard error on the estimates is fairly large. However, some estimates have a confidence interval just above (or below) zero. Looking at the statistics, men support gay marriage less on average than women in each strata. Moreover, whites seem to support gay marriage less than any other race, with the notable except of Hispanic men. 
-Lastly, we want to set create an array of random effects for each state. `ranef(individual.model)` should already have them, but state responses might be zero.
+
+Lastly, we want to set create an array of random effects for each state. `ranef(individual.model)` is the set of all state level slopes, but our survey has no responses from Hawaii and Alaska (and it treats DC as a state). 
 
 
 ```r
-marriage.opinion %>%
-  summarise(count = n())
+NROW(ranef(individual.model)$state)
 ```
 
 ```
-## # A tibble: 1 x 1
-##   count
-##   <int>
-## 1    50
+## [1] 49
 ```
 
-We have 50 'states,' but the data set contains the district of columbia. 
+There are a few ways we can handle this missing data. First, we can set their random effects to zero. This means that since we have no other important, we are estimating that they have the mean population response, which seems reasonable. 
+
+Alternatively, another way to reconstruct missing categories is by using the variation estimated by the model. Looking at the model summary, each group-level intercept has an standard deviation, meaning that each individual's intercept within that group is actually pulled from a normal distribution of mean zero and the listed standard deviation. If we would like to know the total uncertainty about our knowledge in Alaska and Hawaii, we would actually want to sample that distribution and show the overall changes.
+
+We'll just go with the first option for now:
 
 
 ```r
-unique(states$region)
+#create vector of state ranefs and then fill in missing ones
+state.ranefs <- array(NA,c(51,1))
+dimnames(state.ranefs) <- list(c(Statelevel$sstate),"effect")
+for(i in Statelevel$sstate){
+    state.ranefs[i,1] <- ranef(individual.model)$state[i,1]
+}
+#set states with missing REs (b/c not in data) to zero
+state.ranefs[,1][is.na(state.ranefs[,1])] <- 0
 ```
-
-```
-##  [1] "alabama"              "arizona"              "arkansas"            
-##  [4] "california"           "colorado"             "connecticut"         
-##  [7] "delaware"             "district of columbia" "florida"             
-## [10] "georgia"              "idaho"                "illinois"            
-## [13] "indiana"              "iowa"                 "kansas"              
-## [16] "kentucky"             "louisiana"            "maine"               
-## [19] "maryland"             "massachusetts"        "michigan"            
-## [22] "minnesota"            "mississippi"          "missouri"            
-## [25] "montana"              "nebraska"             "nevada"              
-## [28] "new hampshire"        "new jersey"           "new mexico"          
-## [31] "new york"             "north carolina"       "north dakota"        
-## [34] "ohio"                 "oklahoma"             "oregon"              
-## [37] "pennsylvania"         "rhode island"         "south carolina"      
-## [40] "south dakota"         "tennessee"            "texas"               
-## [43] "utah"                 "vermont"              "virginia"            
-## [46] "washington"           "west virginia"        "wisconsin"           
-## [49] "wyoming"
-```
-
-
 
 
 
 ## Poststratifying
 
-
-
-
-
-Note to self: I want to create a scatterplot with state abbreviations using `geom_text` comparing disaggregrate to multilevel. In fact, I want to compare them against both MRP and MR.
+Next, we need to weigh the regression effects by the relative population as shown in the census.
 
 
 ```r
-unique(Census$cstate)
+Census %>%
+  select(crace.female, cage.edu.cat, cstate, cpercent.state) %>%
+  as.tibble()
 ```
 
 ```
-##  [1] "AK" "AL" "AR" "AZ" "CA" "CO" "CT" "DC" "DE" "FL" "GA" "HI" "IA" "ID"
-## [15] "IL" "IN" "KS" "KY" "LA" "MA" "MD" "ME" "MI" "MN" "MO" "MS" "MT" "NC"
-## [29] "ND" "NE" "NH" "NJ" "NM" "NV" "NY" "OH" "OK" "OR" "PA" "RI" "SC" "SD"
-## [43] "TN" "TX" "UT" "VA" "VT" "WA" "WI" "WV" "WY"
+## # A tibble: 4,896 x 4
+##    crace.female cage.edu.cat cstate cpercent.state
+##  *        <dbl>        <dbl>  <chr>          <dbl>
+##  1            1            1     AK    0.022005467
+##  2            1            5     AK    0.017764583
+##  3            1            9     AK    0.019743662
+##  4            1           13     AK    0.016162474
+##  5            1            2     AK    0.045141835
+##  6            1            6     AK    0.064037323
+##  7            1           10     AK    0.047120914
+##  8            1           14     AK    0.009942512
+##  9            1            3     AK    0.033832815
+## 10            1            7     AK    0.057440393
+## # ... with 4,886 more rows
 ```
 
+As shown above, each poststratifying cell or category is given as a percentage of the total population of a state by the Census. Since our mega-poll is not a random sampling of each state, to get state-level outcomes in the proper ratios we need to weigh each cell by their percent of the state population.
+
+First, we need to create our linear predictor model. Given a category of the census (or poststratification cell), say `crace.female`, we create a vector for every cell in the sentence with the appropriate intercept and predictors, as shown in our model. For example, 
+
+
+```r
+# list of intercepts for each race.female cells
+ranef(individual.model)$race.female
+```
+
+```
+##   (Intercept)
+## 1 -0.21042113
+## 2 -0.08701421
+## 3  0.04904728
+## 4  0.23019439
+## 5 -0.22601647
+## 6  0.24575666
+```
+
+```r
+# each Census observation that has some crace.female
+str(Census$crace.female)
+```
+
+```
+##  num [1:4896] 1 1 1 1 1 1 1 1 1 1 ...
+```
+
+```r
+# a list of predicted effects for each observation in the census
+str(ranef(individual.model)$race.female[Census$crace.female,1])
+```
+
+```
+##  num [1:4896] -0.21 -0.21 -0.21 -0.21 -0.21 ...
+```
+
+But we need a model accounting for every cell:
+
+
+```r
+#create a prediction for each cell in Census data
+cellpred <- invlogit(fixef(individual.model)["(Intercept)"] 
+                     + ranef(individual.model)$race.female[Census$crace.female,1]
+                     + ranef(individual.model)$age.cat[Census$cage.cat,1] 
+                     + ranef(individual.model)$edu.cat[Census$cedu.cat,1]
+                     + ranef(individual.model)$age.edu.cat[Census$cage.edu.cat,1] 
+                     + state.ranefs[Census$cstate,1]   
+                     + ranef(individual.model)$region[Census$cregion,1] 
+                     + (fixef(individual.model)["p.relig.full"] *Census$cp.relig.full)
+                     + (fixef(individual.model)["p.kerry.full"] *Census$cp.kerry.full)
+)
+```
+
+Then for each cell prediction, we want to scale it by `Census$cpercent.state` so we have the actual state ratios to make state-level inferences:
+
+
+```r
+cellpredweighted <- cellpred * Census$cpercent.state
+```
+
+Next, we average reach cell within each state to get the predicted state outcome: 
+
+
+```r
+statepred <- tibble(
+  stateabv = unique(Census$cstate),
+  pred.support = 100*as.vector(tapply(cellpredweighted,Census$cstate,sum))
+)
+```
+
+## Comparison to Disaggregated Results
+
+First, let's build a column in our multilevel model so we can match on the dis aggregated results:
+
+
+```r
+statepred$statename <- state.name[match(statepred$stateabv, state.abb)]
+statepred <- statepred %>%
+  mutate(statename = ifelse(is.na(statename), 'district of columbia', statename)) %>%
+  mutate(statename = stringr::str_to_lower(statename))
+```
+
+Then add in disaggragated support:
+
+
+```r
+statepred <- statepred %>%
+  inner_join(marriage.opinion) %>%
+  mutate(support = 100 * support) %>%
+  arrange(pred.support)
+```
+
+First, let's compare the results by the ordered support chart:
+
+
+```r
+ggplot(statepred, aes(y=reorder(statename, pred.support))) +
+  geom_point(aes(x=support)) + 
+  geom_point(aes(x=pred.support), shape = 1) + 
+  geom_vline(xintercept = mean(statepred$support)) + 
+  geom_vline(xintercept = mean(statepred$pred.support), linetype = 2)
+```
+
+![](MRP_primer_files/figure-html/unnamed-chunk-24-1.png)<!-- -->
+
+Our predictions completely change, because the disaggragated data did not poststratify. 
+
+Here's another way to look at it:
+
+
+```r
+# include geom_point and tinker with hjust until over the dot
+# then remove geom_point
+ggplot(statepred, aes(x=support, y=pred.support)) +
+  geom_text(aes(label=stateabv), hjust=0.5, vjust=0.25) +
+  xlim(10, 70) + 
+  ylim(10, 70) + 
+  geom_abline(intercept = 0, slope = 1, linetype=2)
+```
+
+<img src="MRP_primer_files/figure-html/unnamed-chunk-25-1.png" style="display: block; margin: auto;" />
+
+I am wondering how much the changes are from poststratification versus the multilevel model. I should really try to get the poststratifying the disaggragated data. 
 
 ## Comparing model to full Bayesian
 

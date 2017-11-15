@@ -75,6 +75,17 @@ This probably shouldn't go in this repo, but oh well:
 
 http://katbailey.github.io/post/gaussian-processes-for-dummies/
 
+Great blog resource:
+
+https://matthewdharris.com/2016/05/16/gaussian-process-hyperparameter-estimation/
+
+https://matthewdharris.com/2016/04/27/gaussian-process-in-feature-space/
+
+https://blog.dominodatalab.com/fitting-gaussian-process-models-python/
+
+http://newton.cx/~peter/2014/03/elementary-gaussian-processes-in-python/
+
+
 # Mailing List about Bayesian Surveys
 
 https://groups.google.com/forum/#!topic/stan-users/wZUb1KclmB4
@@ -85,9 +96,12 @@ And here:
 
 https://groups.google.com/forum/#!topic/stan-users/v4CoBWUehwU
 
-They say: Recommend running in Stan and then post-stratifying. But doesn't that still use the weights?
-
 Why isn't there a distribution that knows the total population as a parameter? Or rather, what if the inference into a population mean is a decision problem?
 
 I need to do more reason on population weights and how they are included in actual surveys.
+
+
+## Survey data on NE
+
+https://www.cfra.org/sites/www.cfra.org/files/publications/NE-KS-Tax-Policy_0.pdf
 
