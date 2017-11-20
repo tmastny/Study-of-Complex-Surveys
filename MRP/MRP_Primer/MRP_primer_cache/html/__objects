@@ -1,0 +1,30 @@
+unnamed-chunk-1	marriage.data
+unnamed-chunk-2	marriage.opinion	.Random.seed
+unnamed-chunk-3	ditch_the_axes	states
+unnamed-chunk-4	state_opinion
+unnamed-chunk-5	
+unnamed-chunk-6	m.s	marriage.opinion	us	us_map
+unnamed-chunk-7	Statelevel
+unnamed-chunk-8	Census
+unnamed-chunk-9	
+unnamed-chunk-10	marriage.data
+unnamed-chunk-11	Census
+unnamed-chunk-12	individual.model
+unnamed-chunk-13	
+unnamed-chunk-14	
+unnamed-chunk-15	
+unnamed-chunk-16	i	state.ranefs
+unnamed-chunk-17	
+unnamed-chunk-18	
+unnamed-chunk-19	cellpred
+unnamed-chunk-20	cellpredweighted
+unnamed-chunk-21	statepred
+unnamed-chunk-22	statepred
+unnamed-chunk-23	statepred
+unnamed-chunk-24	
+unnamed-chunk-25	
+unnamed-chunk-26	mod	.__C__Rcpp_stan_fit4model7a00502f1d53_file7a0017b8689b	.__global__	.requireCachedGenerics
+unnamed-chunk-27	
+unnamed-chunk-28	
+unnamed-chunk-29	approx_sd	bayes_sd
+unnamed-chunk-30	est_pars

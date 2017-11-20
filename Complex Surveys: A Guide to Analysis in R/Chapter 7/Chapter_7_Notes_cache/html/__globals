@@ -1,0 +1,6 @@
+unnamed-chunk-1	library	tidyverse	survey	data	api	clus2_design	svydesign	dnum	snum	fpc1	fpc2	apiclus2	pop.types	data.frame	c	ps_design	postStratify	stype	svytotal	enroll	svymean	api00
+unnamed-chunk-2	svytotal	enroll	ps_design	svymean	api00
+unnamed-chunk-3	apipop	%>%	summarise	sum	enroll	mean	api00
+unnamed-chunk-4	ps_weight	c	tot_pop	apiclus2	%>%	as.tibble	group_by	stype	summarise	sum	enroll	api00	tot_enroll	tot_api00
+unnamed-chunk-5	strat_design	svydesign	stype	fpc	apistrat	svytotal	enroll	svymean	api00
+unnamed-chunk-6	apistrat	%>%	as.tibble	group_by	stype	summarise	sum	enroll	api00	tot_enroll	ps_weight	tot_api00	tot_pop

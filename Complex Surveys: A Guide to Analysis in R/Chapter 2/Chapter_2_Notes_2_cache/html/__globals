@@ -1,0 +1,31 @@
+unnamed-chunk-1	library	tidyverse	survey	data	api	ggplot	apipop	aes	enroll	geom_histogram	samples	schoolpop	complete.cases	means	apply	as.array	mean	sample	d	data.frame	geom_vline
+unnamed-chunk-2	srs_design	svydesign	fpc	apisrs
+unnamed-chunk-3	svytotal	enroll	srs_design
+unnamed-chunk-4	svymean	enroll	srs_design
+unnamed-chunk-5	sum	schoolpop	mean
+unnamed-chunk-6	unique	apisrs	pw	fpc
+unnamed-chunk-7	nofpc	svydesign	pw	apisrs	svytotal	enroll	svymean
+unnamed-chunk-8	svytotal	stype	srs_design
+unnamed-chunk-9	means	svymean	api00	api99	srs_design	svycontrast	c	quote
+unnamed-chunk-10	srs_design	update	api00	api99	svymean	apidiff
+unnamed-chunk-11	strat_design	svydesign	stype	fpc	apistrat	svytotal	enroll	svymean
+unnamed-chunk-12	unique	apistrat	fpc
+unnamed-chunk-13	svymean	api00	api99	strat_design	svytotal	stype
+unnamed-chunk-14	library	foreign	chis_adult	read.dta
+unnamed-chunk-15	chis	svrepdesign	chis_adult
+unnamed-chunk-16	boot_design	as.svrepdesign	strat_design	jk_design	svymean	enroll
+unnamed-chunk-17	str	apipop	emer
+unnamed-chunk-18	emerg_high	subset	strat_design	emer	emerg_low	svymean	api00	api99	svytotal	enroll
+unnamed-chunk-19	svyby	bmi_p	srsex	racehpr	svymean	chis
+unnamed-chunk-20	medians	svyby	bmi_p	srsex	racehpr	svyquantile	chis	svycontrast	quote	MALE.LATINO	FEMALE.LATINO
+unnamed-chunk-21	ftable	svytotal	interaction	ab29	ab30	chis	%>%	as.tibble	spread	Var2	n	filter	A	totals	svyby	racehpr	ins	marit	select	`interaction(ab29, ab30)YES.YES`
+unnamed-chunk-22	svytotal	I	ab29	ab30	chis
+unnamed-chunk-23	svyby	ab30	ins	ab29	chis	svyratio
+unnamed-chunk-24	svyby	ab30	racehpr	ab29	chis	svyratio
+unnamed-chunk-25	svyby	ab30	marit	ins	ab29	chis	svyratio
+unnamed-chunk-26	svyby	ab30	racehpr	ins	ab29	chis	svyratio
+unnamed-chunk-27	
+hypertension_treat_ratio	svyratio	ab30	ab29	chis
+unnamed-chunk-28	svyratio	ab30	ab29	chis
+unnamed-chunk-29	svyratio	ab22	ab29	chis
+unnamed-chunk-30	svyby	ab30	ab22	ab29	chis	svyratio

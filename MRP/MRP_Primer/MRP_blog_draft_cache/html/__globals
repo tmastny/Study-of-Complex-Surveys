@@ -1,0 +1,4 @@
+unnamed-chunk-1	library	tidyverse	lme4	brms	rstan	rstan_options	options	detectCores
+unnamed-chunk-2	marriage.data	read.dta	marriage.opinion	%>%	group_by	statename	summarise	mean	yes.of.all
+unnamed-chunk-3	Statelevel	read.dta	order	sstate.initnum	Census	cstate	cstate.initnum	match	sstate	marriage.data	race.female	female	race.wbh	age.edu.cat	age.cat	edu.cat	p.evang.full	p.evang	state.initnum	p.mormon.full	p.mormon	p.relig.full	p.kerry.full	kerry.04	crace.female	cfemale	crace.WBH	cage.edu.cat	cage.cat	cedu.cat	cp.evang.full	cp.mormon.full	cp.relig.full	cp.kerry.full
+unnamed-chunk-4	approx.mod	glmer	yes.of.all	race.female	age.cat	edu.cat	age.edu.cat	state	region	poll	p.relig.full	p.kerry.full	marriage.data	binomial	bayes.mod	brm	bernoulli	c	set_prior

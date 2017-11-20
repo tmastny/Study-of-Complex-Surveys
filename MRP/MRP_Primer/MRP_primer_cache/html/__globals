@@ -1,0 +1,30 @@
+unnamed-chunk-1	library	tidyverse	arm	marriage.data	read.dta	%>%	as.tibble
+unnamed-chunk-2	marriage.opinion	marriage.data	%>%	group_by	statename	summarise	mean	yes.of.all
+unnamed-chunk-3	library	maps	mapdata	ggmap	states	map_data	ditch_the_axes	theme	element_blank
+unnamed-chunk-4	state_opinion	states	%>%	inner_join	marriage.opinion	c	as.tibble	ggplot	aes	long	lat	group	geom_polygon	support	coord_fixed	theme_bw	ditch_the_axes	scale_fill_gradient2
+unnamed-chunk-5	marriage.opinion	%>%	na.omit	ggplot	aes	support	reorder	statename	geom_point	geom_vline	mean
+unnamed-chunk-6	library	albersusa	us	usa_composite	us_map	fortify	%>%	mutate	str_to_lower	id	m.s	mean	marriage.opinion	support	nrow	list	semi_join	c	ggthemes	ggplot	geom_map	aes	long	lat	statename	coord_map	scale_fill_gradient2	theme_map	theme	unit
+unnamed-chunk-7	Statelevel	read.dta	order	sstate.initnum	%>%	as.tibble
+unnamed-chunk-8	Census	read.dta	order	cstate	cstate.initnum	match	Statelevel	sstate	%>%	as.tibble
+unnamed-chunk-9	Census	%>%	group_by	crace.WBH	cage.cat	cedu.cat	cfemale	summarise	sum	.freq	filter
+unnamed-chunk-10	marriage.data	race.female	female	race.wbh	age.edu.cat	age.cat	edu.cat	p.evang.full	Statelevel	p.evang	state.initnum	p.mormon.full	p.mormon	p.relig.full	p.kerry.full	kerry.04
+unnamed-chunk-11	Census	crace.female	cfemale	crace.WBH	cage.edu.cat	cage.cat	cedu.cat	cp.evang.full	Statelevel	p.evang	cstate.initnum	cp.mormon.full	p.mormon	cp.relig.full	cp.kerry.full	kerry.04
+unnamed-chunk-12	individual.model	glmer	yes.of.all	race.female	age.cat	edu.cat	age.edu.cat	state	region	poll	p.relig.full	p.kerry.full	marriage.data	binomial
+unnamed-chunk-13	display	individual.model
+unnamed-chunk-14	tibble	ranef	individual.model	race.female	`(Intercept)`	se.ranef	%>%	mutate	c
+unnamed-chunk-15	NROW	ranef	individual.model	state
+unnamed-chunk-16	state.ranefs	array	c	dimnames	list	Statelevel	sstate	i	ranef	individual.model	state	is.na
+unnamed-chunk-17	Census	%>%	select	crace.female	cage.edu.cat	cstate	cpercent.state	as.tibble
+unnamed-chunk-18	ranef	individual.model	race.female	str	Census	crace.female
+unnamed-chunk-19	cellpred	invlogit	fixef	individual.model	ranef	race.female	Census	crace.female	age.cat	cage.cat	edu.cat	cedu.cat	age.edu.cat	cage.edu.cat	state.ranefs	cstate	region	cregion	cp.relig.full	cp.kerry.full
+unnamed-chunk-20	cellpredweighted	cellpred	Census	cpercent.state
+unnamed-chunk-21	statepred	tibble	unique	Census	cstate	as.vector	tapply	cellpredweighted	sum
+unnamed-chunk-22	statepred	statename	state.name	match	stateabv	state.abb	%>%	mutate	ifelse	is.na	str_to_lower
+unnamed-chunk-23	statepred	%>%	inner_join	marriage.opinion	mutate	support	arrange	pred.support
+unnamed-chunk-24	ggplot	statepred	aes	reorder	statename	pred.support	geom_point	support	geom_vline	mean
+unnamed-chunk-25	ggplot	statepred	aes	support	pred.support	geom_text	stateabv	xlim	ylim	geom_abline
+unnamed-chunk-26	library	brms	rstan	rstan_options	options	detectCores	mod	brm	yes.of.all	race.female	age.cat	edu.cat	age.edu.cat	state	region	poll	p.relig.full	p.kerry.full	marriage.data	bernoulli	c	set_prior
+unnamed-chunk-27	library	tidybayes	mod	%>%	gather_samples	`sd_.*`	ggplot	aes	term	estimate	..density..	geom_density_ridges
+unnamed-chunk-28	mod	%>%	gather_samples	`sd_.*`	ggplot	aes	term	estimate	geom_halfeyeh
+unnamed-chunk-29	bayes_sd	mod	%>%	gather_samples	`sd_.*`	group_by	term	mean_qi	ungroup	mutate	str_replace_all	c	approx_sd	tidy	individual.model	filter	str_detect	inner_join	ggplot	aes	estimate.x	geom_point	position_nudge	geom_segment	conf.low	conf.high	estimate.y
+unnamed-chunk-30	est_pars	individual.model	%>%	gather_samples	`sd_.*`	group_by	term	mean_qi	MLE_mod

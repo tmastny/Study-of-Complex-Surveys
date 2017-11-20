@@ -1,0 +1,34 @@
+unnamed-chunk-1	library	tidyverse	lme4	brms	rstan	rstan_options	options	detectCores
+unnamed-chunk-2	marriage.data	read.dta
+unnamed-chunk-3	Statelevel	read.dta	order	sstate.initnum	Census	cstate	cstate.initnum	match	sstate	marriage.data	race.female	female	race.wbh	age.edu.cat	age.cat	edu.cat	p.evang.full	p.evang	state.initnum	p.mormon.full	p.mormon	p.relig.full	p.kerry.full	kerry.04	crace.female	cfemale	crace.WBH	cage.edu.cat	cage.cat	cedu.cat	cp.evang.full	cp.mormon.full	cp.relig.full	cp.kerry.full
+unnamed-chunk-4	individual.model	glmer	yes.of.all	race.female	age.cat	edu.cat	age.edu.cat	state	region	poll	p.relig.full	p.kerry.full	marriage.data	binomial
+unnamed-chunk-5	state.ranefs	array	c	dimnames	list	Statelevel	sstate	i	ranef	individual.model	state	is.na
+unnamed-chunk-6	Census	%>%	as.tibble	select	crace.female	cage.cat	cedu.cat	cage.edu.cat	cstate	cregion	cp.relig.full	cp.kerry.full
+unnamed-chunk-7	Census	%>%	as.tibble	select	cpercent.state
+unnamed-chunk-8	cellpred	invlogit	fixef	individual.model	ranef	race.female	Census	crace.female	age.cat	cage.cat	edu.cat	cedu.cat	age.edu.cat	cage.edu.cat	state.ranefs	cstate	region	cregion	cp.relig.full	cp.kerry.full	str
+unnamed-chunk-9	cellpredweighted	cellpred	Census	cpercent.state
+unnamed-chunk-10	statepred	tibble	unique	Census	cstate	as.vector	tapply	cellpredweighted	sum
+unnamed-chunk-11	Census	crace.female	cfemale	crace.WBH	cage.edu.cat	cage.cat	cedu.cat	cp.evang.full	Statelevel	p.evang	cstate.initnum	cp.mormon.full	p.mormon	cp.relig.full	cp.kerry.full	kerry.04
+unnamed-chunk-12	individual.model	glmer	yes.of.all	race.female	age.cat	edu.cat	age.edu.cat	state	region	poll	p.relig.full	p.kerry.full	marriage.data	binomial
+unnamed-chunk-13	display	individual.model
+unnamed-chunk-14	tibble	ranef	individual.model	race.female	`(Intercept)`	se.ranef	%>%	mutate	c
+unnamed-chunk-15	NROW	ranef	individual.model	state
+unnamed-chunk-16	state.ranefs	array	c	dimnames	list	Statelevel	sstate	i	ranef	individual.model	state	is.na
+unnamed-chunk-17	Census	%>%	select	crace.female	cage.edu.cat	cstate	cpercent.state	as.tibble
+unnamed-chunk-18	ranef	individual.model	race.female	str	Census	crace.female
+unnamed-chunk-19	cellpred	invlogit	fixef	individual.model	ranef	race.female	Census	crace.female	age.cat	cage.cat	edu.cat	cedu.cat	age.edu.cat	cage.edu.cat	state.ranefs	cstate	region	cregion	cp.relig.full	cp.kerry.full
+unnamed-chunk-20	Census	%>%	as.tibble	select	crace.WBH	cage.cat	cstate	cpercent.state
+unnamed-chunk-21	Census	%>%	as.tibble	group_by	cstate	summarise	sum	cpercent.state
+unnamed-chunk-22	ranef	individual.model	race.female
+unnamed-chunk-23	str	Census	crace.female
+unnamed-chunk-24	str	ranef	individual.model	race.female	Census	crace.female
+unnamed-chunk-25	cellpred	invlogit	fixef	individual.model	ranef	race.female	Census	crace.female	age.cat	cage.cat	edu.cat	cedu.cat	age.edu.cat	cage.edu.cat	state.ranefs	cstate	region	cregion	cp.relig.full	cp.kerry.full	str
+unnamed-chunk-26	Census	%>%	as.tibble	select	crace.female	cage.cat	cedu.cat	cage.edu.cat	cstate	cregion	cp.relig.full	cp.kerry.full
+unnamed-chunk-27	Census	%>%	as.tibble	select	cpercent.state
+unnamed-chunk-28	str	cellpred
+unnamed-chunk-29	new_state	tibble	c
+unnamed-chunk-30	mean	new_state	support
+unnamed-chunk-31	vote_yes	c	rep	mean
+unnamed-chunk-32	new_state	percent.state	pop	sum	support
+unnamed-chunk-33	cellpredweighted	cellpred	Census	cpercent.state
+unnamed-chunk-34	statepred	tibble	unique	Census	cstate	as.vector	tapply	cellpredweighted	sum

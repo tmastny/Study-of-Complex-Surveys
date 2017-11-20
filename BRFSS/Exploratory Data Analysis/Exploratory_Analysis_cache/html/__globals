@@ -1,0 +1,4 @@
+unnamed-chunk-1	library	tidyverse	d	read_csv	%>%	as.tibble
+unnamed-chunk-2	unique	d	Year	Locationabbr	Locationdesc	GeoLocation
+unnamed-chunk-3	d	%>%	select	Class	Question	Response	Sample_Size	unique	str
+unnamed-chunk-4	d	%>%	select	Response	Sample_Size	Break_Out

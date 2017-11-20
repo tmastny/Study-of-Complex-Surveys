@@ -1,0 +1,18 @@
+unnamed-chunk-1	vote_yes	c	rep
+unnamed-chunk-2	mean	vote_yes
+unnamed-chunk-3	library	tidyverse	poll_data	tibble	c	rep	%>%	group_by	group	summarise	n
+unnamed-chunk-4	Census	tibble	c
+unnamed-chunk-5	mean	poll_data	yes
+unnamed-chunk-6	group_support	poll_data	%>%	group_by	group	summarise	mean	yes
+unnamed-chunk-7	overall_support	group_support	%>%	summarise	sum	perc_support	Census	pop
+unnamed-chunk-8	library	survey	data	api
+unnamed-chunk-9	Census	tibble	c
+unnamed-chunk-10	d	apistrat	%>%	as.tibble	group_by	stype	summarise	n
+unnamed-chunk-11	d.group.ave	d	%>%	group_by	stype	summarise	mean	api00
+unnamed-chunk-12	d.total.ave	d.group.ave	%>%	summarise	sum	ave_score	Census	pop
+unnamed-chunk-13	apipop	%>%	as.tibble	summarise	mean	api00
+unnamed-chunk-14	d.group.enroll	d	%>%	group_by	stype	summarise	sum	enroll
+unnamed-chunk-15	d.tot.enroll	d.group.enroll	%>%	summarise	sum	enroll	Census	pop	c
+unnamed-chunk-16	apipop	%>%	as.tibble	summarise	sum	enroll
+unnamed-chunk-17	d.api.tot	d	%>%	group_by	stype	summarise	sum	api00
+unnamed-chunk-18	d.api.mean	d.api.tot	%>%	summarise	sum	tot_api	Census	pop	c
