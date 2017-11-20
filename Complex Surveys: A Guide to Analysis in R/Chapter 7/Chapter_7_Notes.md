@@ -115,4 +115,8 @@ apistrat %>% as.tibble() %>%
 
 We get exactly the same answers.
 
+## Alternative Poststratification procedures
+
+
+
 

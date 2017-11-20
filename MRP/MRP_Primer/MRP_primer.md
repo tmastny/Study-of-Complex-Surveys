@@ -363,12 +363,12 @@ tibble(Intercept = ranef(individual.model)$race.female$`(Intercept)`,
 ## # A tibble: 6 x 3
 ##     Intercept        se            race
 ##         <dbl>     <dbl>           <chr>
-## 1 -0.21042113 0.1083258      White male
-## 2 -0.08701421 0.1454965    White female
-## 3  0.04904728 0.1472961      Black male
-## 4  0.23019439 0.1080291    Black female
-## 5 -0.22601647 0.1362808   Hispanic male
-## 6  0.24575666 0.1485544 Hispanic female
+## 1 -0.21041966 0.1083277      White male
+## 2 -0.08701381 0.1454986    White female
+## 3  0.04904925 0.1472982      Black male
+## 4  0.23019645 0.1080310    Black female
+## 5 -0.22601721 0.1362828   Hispanic male
+## 6  0.24576221 0.1485565 Hispanic female
 ```
 
 The standard error on the estimates is fairly large. However, some estimates have a confidence interval just above (or below) zero. Looking at the statistics, men support gay marriage less on average than women in each strata. Moreover, whites seem to support gay marriage less than any other race, with the notable except of Hispanic men. 
@@ -411,7 +411,7 @@ Next, we need to weigh the regression effects by the relative population as show
 
 ```r
 Census %>%
-  select(crace.female, cage.edu.cat, cstate, cpercent.state) %>%
+  dplyr::select(crace.female, cage.edu.cat, cstate, cpercent.state) %>%
   as.tibble()
 ```
 
@@ -444,12 +444,12 @@ ranef(individual.model)$race.female
 
 ```
 ##   (Intercept)
-## 1 -0.21042113
-## 2 -0.08701421
-## 3  0.04904728
-## 4  0.23019439
-## 5 -0.22601647
-## 6  0.24575666
+## 1 -0.21041966
+## 2 -0.08701381
+## 3  0.04904925
+## 4  0.23019645
+## 5 -0.22601721
+## 6  0.24576221
 ```
 
 ```r
@@ -566,21 +566,81 @@ We'll fit the model to flat priors without better information and to match the M
 Based on an initial attempted fit, I think I'll need to provide some priors to get quick convergence. 
 
 
-```r
-# library(brms)
-# individual.model <- brm(yes.of.all ~ 
-#                             (1|race.female) + (1|age.cat) +
-#                             (1|edu.cat) + (1|age.edu.cat) + 
-#                             (1|state) + (1|region) + (1|poll) +
-#                             p.relig.full + p.kerry.full, 
-#                           data=marriage.data, family=binomial(link="logit"))
-```
 
 ```r
-# display(individual.model)
-# summary(individual.model)
+library(brms)
+library(rstan)
+
+rstan_options(auto_write=TRUE)
+options(mc.cores=parallel::detectCores())
+
+mod <- brm(yes.of.all ~
+                            (1|race.female) + (1|age.cat) +
+                            (1|edu.cat) + (1|age.edu.cat) +
+                            (1|state) + (1|region) + (1|poll) +
+                            p.relig.full + p.kerry.full,
+                        data=marriage.data, family=bernoulli(),
+                        prior=c(set_prior("normal(0,1)", class='b'),
+                                set_prior("normal(0,1)", class='sd', group="race.female"),
+                                set_prior("normal(0,1)", class='sd', group="age.cat"),
+                                set_prior("normal(0,1)", class='sd', group="edu.cat"),
+                                set_prior("normal(0,1)", class='sd', group="age.edu.cat"),
+                                set_prior("normal(0,1)", class='sd', group="state"),
+                                set_prior("normal(0,1)", class='sd', group="region"),
+                                set_prior("normal(0,1)", class='sd', group="poll")
+                                ))
 ```
 
+Plot of model coefficients:
+
+
+```r
+library(tidybayes)
+
+mod %>%
+  gather_samples(`sd_.*`, regex=TRUE) %>%
+  ggplot(aes(y=term, x=estimate, height = ..density..)) + 
+  ggridges::geom_density_ridges(rel_min_height = 0.01, stat = "density")
+```
+
+![](MRP_primer_files/figure-html/unnamed-chunk-27-1.png)<!-- -->
+
+Compared to estimated multilevel model:
+
+
+```r
+mod %>%
+  gather_samples(`sd_.*`, regex=TRUE) %>%
+  ggplot(aes(y=term, x=estimate)) + 
+  geom_halfeyeh()
+```
+
+![](MRP_primer_files/figure-html/unnamed-chunk-28-1.png)<!-- -->
+
+
+```r
+bayes_sd <- mod %>%
+  gather_samples(`sd_.*`, regex=TRUE) %>%
+  group_by(term) %>%
+  mean_qi() %>%
+  ungroup() %>%
+  mutate(term = stringr::str_replace_all(term, c("sd_" = "","__Intercept"="")))
+
+approx_sd <- broom::tidy(individual.model) %>%
+  filter(stringr::str_detect(term, "sd_"))
+
+bayes_sd %>%
+  inner_join(approx_sd, by=c("term"="group")) %>%
+  ggplot(aes(y = term, x = estimate.x)) +
+  geom_point(position = position_nudge(y = 0.1)) +
+  geom_segment(aes(x=conf.low, xend=conf.high, yend=term), 
+             position = position_nudge(y = 0.1)) + 
+  geom_point(aes(x=estimate.y))
+```
+
+![](MRP_primer_files/figure-html/unnamed-chunk-29-1.png)<!-- -->
+
+And it takes longer to calculate the bootstrap confidence intervals than it does just to fit the model with `brms`. Theoretically, you should be able to calculate parameter confidence intervals with `confint` in `lme4`, but both bootstrap and likelihood ratio methods took so much longer than fitting the model in Stan I gave up. 
 
 
 

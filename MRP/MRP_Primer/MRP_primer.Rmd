@@ -257,7 +257,7 @@ Next, we need to weigh the regression effects by the relative population as show
 
 ```{r}
 Census %>%
-  select(crace.female, cage.edu.cat, cstate, cpercent.state) %>%
+  dplyr::select(crace.female, cage.edu.cat, cstate, cpercent.state) %>%
   as.tibble()
 ```
 
@@ -360,20 +360,72 @@ We'll fit the model to flat priors without better information and to match the M
 
 Based on an initial attempted fit, I think I'll need to provide some priors to get quick convergence. 
 
+
 ```{r, results='hide'}
-# library(brms)
-# individual.model <- brm(yes.of.all ~ 
-#                             (1|race.female) + (1|age.cat) +
-#                             (1|edu.cat) + (1|age.edu.cat) + 
-#                             (1|state) + (1|region) + (1|poll) +
-#                             p.relig.full + p.kerry.full, 
-#                           data=marriage.data, family=binomial(link="logit"))
-```
-```{r}
-# display(individual.model)
-# summary(individual.model)
+library(brms)
+library(rstan)
+
+rstan_options(auto_write=TRUE)
+options(mc.cores=parallel::detectCores())
+
+mod <- brm(yes.of.all ~
+                            (1|race.female) + (1|age.cat) +
+                            (1|edu.cat) + (1|age.edu.cat) +
+                            (1|state) + (1|region) + (1|poll) +
+                            p.relig.full + p.kerry.full,
+                        data=marriage.data, family=bernoulli(),
+                        prior=c(set_prior("normal(0,1)", class='b'),
+                                set_prior("normal(0,1)", class='sd', group="race.female"),
+                                set_prior("normal(0,1)", class='sd', group="age.cat"),
+                                set_prior("normal(0,1)", class='sd', group="edu.cat"),
+                                set_prior("normal(0,1)", class='sd', group="age.edu.cat"),
+                                set_prior("normal(0,1)", class='sd', group="state"),
+                                set_prior("normal(0,1)", class='sd', group="region"),
+                                set_prior("normal(0,1)", class='sd', group="poll")
+                                ))
 ```
 
+Plot of model coefficients:
+
+```{r}
+library(tidybayes)
+
+mod %>%
+  gather_samples(`sd_.*`, regex=TRUE) %>%
+  ggplot(aes(y=term, x=estimate, height = ..density..)) + 
+  ggridges::geom_density_ridges(rel_min_height = 0.01, stat = "density")
+```
+
+Compared to estimated multilevel model:
+
+```{r}
+mod %>%
+  gather_samples(`sd_.*`, regex=TRUE) %>%
+  ggplot(aes(y=term, x=estimate)) + 
+  geom_halfeyeh()
+```
+
+```{r}
+bayes_sd <- mod %>%
+  gather_samples(`sd_.*`, regex=TRUE) %>%
+  group_by(term) %>%
+  mean_qi() %>%
+  ungroup() %>%
+  mutate(term = stringr::str_replace_all(term, c("sd_" = "","__Intercept"="")))
+
+approx_sd <- broom::tidy(individual.model) %>%
+  filter(stringr::str_detect(term, "sd_"))
+
+bayes_sd %>%
+  inner_join(approx_sd, by=c("term"="group")) %>%
+  ggplot(aes(y = term, x = estimate.x)) +
+  geom_point(position = position_nudge(y = 0.1)) +
+  geom_segment(aes(x=conf.low, xend=conf.high, yend=term), 
+             position = position_nudge(y = 0.1)) + 
+  geom_point(aes(x=estimate.y))
+```
+
+And it takes longer to calculate the bootstrap confidence intervals than it does just to fit the model with `brms`. Theoretically, you should be able to calculate parameter confidence intervals with `confint` in `lme4`, but both bootstrap and likelihood ratio methods took so much longer than fitting the model in Stan I gave up. 
 
 
 

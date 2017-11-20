@@ -1,0 +1,126 @@
+---
+title: "MRP Primer"
+author: "Tim"
+date: "11/9/2017"
+output: 
+  html_document:
+    keep_md: yes
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, warning=FALSE, message=FALSE, 
+                      results='show', cache=TRUE, autodep=TRUE)
+```
+## Data and references
+
+## Poststrat full example
+
+```{r}
+library(tidyverse)
+library(lme4)
+library(brms)
+library(rstan)
+
+rstan_options(auto_write=TRUE)
+options(mc.cores=parallel::detectCores())
+```
+```{r}
+marriage.data <- foreign::read.dta('gay_marriage_megapoll.dta', convert.underscore=TRUE)
+```
+
+## Data Cleaning
+
+Kastellec does a lot of variable recoding and in some ways I'm not sure the tidy way is much better, but we'll try:
+
+```{r, echo=FALSE}
+Statelevel <- foreign::read.dta("state_level_update.dta",convert.underscore = TRUE)
+Statelevel <- Statelevel[order(Statelevel$sstate.initnum),]
+
+Census <- foreign::read.dta("poststratification 2000.dta",convert.underscore = TRUE)
+Census <- Census[order(Census$cstate),]
+Census$cstate.initnum <-  match(Census$cstate, Statelevel$sstate)
+
+marriage.data$race.female <- (marriage.data$female *3) + marriage.data$race.wbh
+marriage.data$age.edu.cat <- 4 * (marriage.data$age.cat -1) + marriage.data$edu.cat
+marriage.data$p.evang.full <- Statelevel$p.evang[marriage.data$state.initnum]
+marriage.data$p.mormon.full <-Statelevel$p.mormon[marriage.data$state.initnum]
+marriage.data$p.relig.full <- marriage.data$p.evang.full + marriage.data$p.mormon.full
+marriage.data$p.kerry.full <- Statelevel$kerry.04[marriage.data$state.initnum]
+
+Census$crace.female <- (Census$cfemale *3) + Census$crace.WBH 
+Census$cage.edu.cat <- 4 * (Census$cage.cat -1) + Census$cedu.cat 
+Census$cp.evang.full<-  Statelevel$p.evang[Census$cstate.initnum]
+Census$cp.mormon.full <- Statelevel$p.mormon[Census$cstate.initnum]
+Census$cp.relig.full <- Census$cp.evang.full + Census$cp.mormon.full
+Census$cp.kerry.full <-  Statelevel$kerry.04[Census$cstate.initnum]
+```
+
+```{r}
+individual.model <- glmer(formula = yes.of.all ~ 
+                            (1|race.female) + (1|age.cat) +
+                            (1|edu.cat) + (1|age.edu.cat) + 
+                            (1|state) + (1|region) + (1|poll) +
+                            p.relig.full + p.kerry.full, 
+                          data=marriage.data, family=binomial(link="logit"))
+```
+
+```{r}
+#create vector of state ranefs and then fill in missing ones
+state.ranefs <- array(NA,c(51,1))
+dimnames(state.ranefs) <- list(c(Statelevel$sstate),"effect")
+for(i in Statelevel$sstate){
+    state.ranefs[i,1] <- ranef(individual.model)$state[i,1]
+}
+#set states with missing REs (b/c not in data) to zero
+state.ranefs[,1][is.na(state.ranefs[,1])] <- 0
+```
+
+1. Each observation in the Census is a certain demographic group, identified by the following characteristics:
+
+```{r, results='hold'}
+Census %>% as.tibble() %>% 
+  dplyr::select(crace.female, cage.cat, cedu.cat, cage.edu.cat, cstate)
+
+Census %>% as.tibble() %>% 
+  dplyr::select(cregion, cp.relig.full, cp.kerry.full)
+```
+
+2. Each observation's demographics are noted as a percent of the state's population
+
+```{r}
+Census %>% as.tibble() %>% 
+  dplyr::select(cpercent.state)
+```
+
+3. For each observation's demographics, our model tells us their estimated support for gay marriage:
+
+```{r}
+cellpred <- invlogit(fixef(individual.model)["(Intercept)"] 
+                     + ranef(individual.model)$race.female[Census$crace.female,1]
+                     + ranef(individual.model)$age.cat[Census$cage.cat,1] 
+                     + ranef(individual.model)$edu.cat[Census$cedu.cat,1]
+                     + ranef(individual.model)$age.edu.cat[Census$cage.edu.cat,1] 
+                     + state.ranefs[Census$cstate,1]   
+                     + ranef(individual.model)$region[Census$cregion,1] 
+                     + (fixef(individual.model)["p.relig.full"] *Census$cp.relig.full)
+                     + (fixef(individual.model)["p.kerry.full"] *Census$cp.kerry.full)
+)
+str(cellpred)
+```
+
+4. Next, we take the weighted average of the proportion of support for gay marriage. 
+
+```{r}                                    
+cellpredweighted <- cellpred * Census$cpercent.state
+```
+
+5. Next, we average reach cell within each state to get the predicted state outcome: 
+
+```{r}
+statepred <- tibble(
+  stateabv = unique(Census$cstate),
+  pred.support = 100*as.vector(tapply(cellpredweighted,Census$cstate,sum))
+)
+```
+
+
