@@ -85,6 +85,8 @@ https://blog.dominodatalab.com/fitting-gaussian-process-models-python/
 
 http://newton.cx/~peter/2014/03/elementary-gaussian-processes-in-python/
 
+http://www.cs.ox.ac.uk/people/yarin.gal/website/blog_3d801aa532c1ce.html
+
 
 # Mailing List about Bayesian Surveys
 
