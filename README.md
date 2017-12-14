@@ -71,6 +71,10 @@ http://www.stat.columbia.edu/~gelman/research/published/forecasting-with-nonrepr
 
 # Gaussian Processes
 
+This is the latest blog post on GP, and seems very nice first introduction:
+
+http://bridg.land/posts/gaussian-processes-1
+
 This probably shouldn't go in this repo, but oh well:
 
 http://katbailey.github.io/post/gaussian-processes-for-dummies/
